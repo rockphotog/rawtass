@@ -2,10 +2,20 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct FileBrowser: View {
-    @State private var currentDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+    @State private var currentDirectory: URL = {
+        // Start with a directory we know we can access - the sandbox Documents directory
+        // This will show user how to navigate to real directories via file picker
+        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            return documentsURL
+        }
+        
+        // Ultimate fallback to sandbox home directory
+        return FileManager.default.homeDirectoryForCurrentUser
+    }()
     @State private var contents: [URL] = []
     @State private var selectedFile: URL?
     @State private var showingFilePicker = false
+    @State private var securityScopedResources: Set<URL> = []
 
     let supportedTypes: [UTType]
     let onFileSelected: (URL) -> Void
@@ -33,6 +43,37 @@ struct FileBrowser: View {
                 } label: {
                     Image(systemName: "folder")
                 }
+
+                Divider()
+
+                // Quick access buttons - open file picker to select directories
+                Button {
+                    showingFilePicker = true
+                } label: {
+                    Image(systemName: "house")
+                }
+                .help("Select Documents folder")
+                
+                Button {
+                    showingFilePicker = true
+                } label: {
+                    Image(systemName: "photo")
+                }
+                .help("Select Pictures folder")
+                
+                Button {
+                    showingFilePicker = true
+                } label: {
+                    Image(systemName: "desktopcomputer")
+                }
+                .help("Select Desktop folder")
+                
+                Button {
+                    showingFilePicker = true
+                } label: {
+                    Image(systemName: "square.and.arrow.down")
+                }
+                .help("Select Downloads folder")
 
                 Spacer()
 
@@ -93,6 +134,9 @@ struct FileBrowser: View {
         .onAppear {
             refreshContents()
         }
+        .onDisappear {
+            cleanup()
+        }
         .fileImporter(
             isPresented: $showingFilePicker,
             allowedContentTypes: [.folder],
@@ -101,8 +145,32 @@ struct FileBrowser: View {
             switch result {
             case .success(let urls):
                 if let url = urls.first {
-                    currentDirectory = url
-                    refreshContents()
+                    // Start accessing the security-scoped resource
+                    let accessing = url.startAccessingSecurityScopedResource()
+                    
+                    if accessing {
+                        print("Successfully gained access to: \(url.path)")
+                        
+                        // Track this resource for cleanup
+                        securityScopedResources.insert(url)
+                        
+                        // Store a security-scoped bookmark for future access
+                        do {
+                            let bookmarkData = try url.bookmarkData(options: .withSecurityScope)
+                            // Save the bookmark (you could store this in UserDefaults for persistence)
+                            print("Created security-scoped bookmark for: \(url.path)")
+                        } catch {
+                            print("Failed to create bookmark: \(error)")
+                        }
+                        
+                        currentDirectory = url
+                        refreshContents()
+                    } else {
+                        print("Failed to gain access to security-scoped resource: \(url.path)")
+                        // Still try to navigate - maybe it's already accessible
+                        currentDirectory = url
+                        refreshContents()
+                    }
                 }
             case .failure(let error):
                 print("Error selecting folder: \(error)")
@@ -157,6 +225,60 @@ struct FileBrowser: View {
     private func navigateToComponent(_ component: URL) {
         currentDirectory = component
         refreshContents()
+    }
+    
+    // Clean up security-scoped resources when the view disappears
+    private func cleanup() {
+        for url in securityScopedResources {
+            url.stopAccessingSecurityScopedResource()
+        }
+        securityScopedResources.removeAll()
+    }
+
+    // Quick access navigation methods - use file picker to get user-granted access
+    private func navigateToDocuments() {
+        print("Opening file picker for Documents access")
+        showingFilePicker = true
+    }
+
+    private func navigateToDesktop() {
+        print("Opening file picker for Desktop access")
+        showingFilePicker = true
+    }
+
+    private func navigateToPictures() {
+        print("Opening file picker for Pictures access")
+        showingFilePicker = true
+    }
+
+    private func navigateToDownloads() {
+        print("Opening file picker for Downloads access")
+        showingFilePicker = true
+    }
+    
+    // Get the real user home directory bypassing sandbox redirection
+    private func getRealUserHomeDirectory() -> URL {
+        return Self.getRealUserHomeDirectoryStatic()
+    }
+    
+    // Static version for use in initialization
+    private static func getRealUserHomeDirectoryStatic() -> URL {
+        // First try to get the real user name from the environment
+        if let realUser = ProcessInfo.processInfo.environment["USER"] {
+            let realHomePath = "/Users/\(realUser)"
+            let realHomeURL = URL(fileURLWithPath: realHomePath)
+            
+            // Verify this directory exists and is accessible
+            if FileManager.default.fileExists(atPath: realHomePath) {
+                print("Using real home directory: \(realHomePath)")
+                return realHomeURL
+            }
+        }
+        
+        // Fallback to sandbox home directory
+        let sandboxHome = FileManager.default.homeDirectoryForCurrentUser
+        print("Falling back to sandbox home directory: \(sandboxHome.path)")
+        return sandboxHome
     }
 
     private func isSupportedFile(_ url: URL) -> Bool {
