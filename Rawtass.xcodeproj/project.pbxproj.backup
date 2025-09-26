@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		"1752ECA0-9D1B-4BBC-8166-4FA5580E82E4" /* RawImageFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = "996E7922-CF6A-468E-BF28-510D5BB0B0FB" /* RawImageFormat.swift */; };
-		2D590DB059E544F8A69BB5CF /* FileBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 775E356F4831479DBBF98CDC /* FileBrowser.swift */; };
 		A1B2C3D4E5F6071829AB0001 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0002 /* App.swift */; };
 		A1B2C3D4E5F6071829AB0003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0004 /* ContentView.swift */; };
 		A1B2C3D4E5F6071829AB0005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0006 /* Assets.xcassets */; };
@@ -16,11 +15,9 @@
 		A1B2C3D4E5F6071829AB0011 /* RawImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0012 /* RawImageProcessor.swift */; };
 		A1B2C3D4E5F6071829AB0013 /* RawFormatDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0014 /* RawFormatDetector.swift */; };
 		A1B2C3D4E5F6071829AB0015 /* RawImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0016 /* RawImageViewer.swift */; };
-		E1543EFA6F5243FCB294E716 /* ImageViewerPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04BFAF08460456BB94BCFCC /* ImageViewerPane.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		775E356F4831479DBBF98CDC /* FileBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowser.swift; sourceTree = "<group>"; };
 		"996E7922-CF6A-468E-BF28-510D5BB0B0FB" /* RawImageFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImageFormat.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0002 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -31,7 +28,6 @@
 		A1B2C3D4E5F6071829AB0012 /* RawImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImageProcessor.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0014 /* RawFormatDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawFormatDetector.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0016 /* RawImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImageViewer.swift; sourceTree = "<group>"; };
-		F04BFAF08460456BB94BCFCC /* ImageViewerPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerPane.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,8 +83,6 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6071829AB0016 /* RawImageViewer.swift */,
-				775E356F4831479DBBF98CDC /* FileBrowser.swift */,
-				F04BFAF08460456BB94BCFCC /* ImageViewerPane.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -131,7 +125,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					A1B2C3D4E5F6071829AB0040 = {
 						CreatedOnToolsVersion = 15.0;
@@ -179,8 +173,6 @@
 				"1752ECA0-9D1B-4BBC-8166-4FA5580E82E4" /* RawImageFormat.swift in Sources */,
 				A1B2C3D4E5F6071829AB0013 /* RawFormatDetector.swift in Sources */,
 				A1B2C3D4E5F6071829AB0015 /* RawImageViewer.swift in Sources */,
-				2D590DB059E544F8A69BB5CF /* FileBrowser.swift in Sources */,
-				E1543EFA6F5243FCB294E716 /* ImageViewerPane.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,7 +213,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -246,7 +237,6 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -286,7 +276,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -304,7 +293,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -320,12 +308,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Rawtass/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = YES;
-				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readonly;
-				ENABLE_FILE_ACCESS_PICTURE_FOLDER = readonly;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
@@ -338,7 +323,6 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Rawtass;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
@@ -351,8 +335,6 @@
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Rawtass;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUNTIME_EXCEPTION_ALLOW_JIT = YES;
-				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -369,12 +351,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Rawtass/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = YES;
-				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readonly;
-				ENABLE_FILE_ACCESS_PICTURE_FOLDER = readonly;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
@@ -387,7 +366,6 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Rawtass;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
@@ -400,8 +378,6 @@
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Rawtass;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUNTIME_EXCEPTION_ALLOW_JIT = YES;
-				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
