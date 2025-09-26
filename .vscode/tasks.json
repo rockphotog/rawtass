@@ -1,0 +1,175 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Rawtass: Build Project",
+      "type": "shell",
+      "command": "./Scripts/build.sh",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "swift",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": [
+          {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+    {
+      "label": "Rawtass: Validate Project",
+      "type": "shell",
+      "command": "./Scripts/validate_project.sh",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Rawtass: Fix Build Errors",
+      "type": "shell",
+      "command": "./Scripts/error_resolver.sh",
+      "args": ["${input:buildLogPath}"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Rawtass: Clean Build Artifacts",
+      "type": "shell",
+      "command": "rm",
+      "args": ["-rf", "build", "DerivedData", ".build", "logs/*.log"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "Rawtass: Open Xcode Project",
+      "type": "shell",
+      "command": "open",
+      "args": ["Rawtass.xcodeproj"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "Rawtass: Run Swift Syntax Check",
+      "type": "shell",
+      "command": "find",
+      "args": [
+        "Rawtass",
+        "-name", "*.swift",
+        "-exec", "swiftc", "-parse-as-library", "{}", ";"
+      ],
+      "group": "test",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      },
+      "problemMatcher": {
+        "owner": "swift",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": [
+          {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+    {
+      "label": "Rawtass: Generate Build Report",
+      "type": "shell",
+      "command": "echo",
+      "args": ["Build report generated at logs/build_$(date +%Y%m%d_%H%M%S).log"],
+      "group": "build",
+      "dependsOn": "Rawtass: Build Project",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "buildLogPath",
+      "description": "Path to build log file for error resolution",
+      "default": "logs/build_latest.log",
+      "type": "promptString"
+    }
+  ]
+}

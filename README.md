@@ -26,6 +26,8 @@ The Nikon HE/HE* compressed raw formats are patented and specifications is not e
 
 ### Getting Started
 
+#### Option 1: Xcode Development (Recommended for beginners)
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/rockphotog/rawtass.git
@@ -43,6 +45,30 @@ The Nikon HE/HE* compressed raw formats are patented and specifications is not e
    - Select the "Rawtass" scheme in Xcode
    - Choose your target device (Mac)
    - Press `⌘+R` to build and run
+
+#### Option 2: VS Code Development (Advanced)
+
+For developers who prefer VS Code with automated build tools:
+
+1. **Quick setup:**
+   ```bash
+   git clone https://github.com/rockphotog/rawtass.git
+   cd rawtass
+   ./setup-vscode.sh
+   code .
+   ```
+
+2. **Manual setup:**
+   - Install recommended extensions when prompted
+   - Use `Cmd+Shift+P` → "Tasks: Run Task" for build operations
+   - See detailed guide: [.vscode/README.md](.vscode/README.md)
+
+**VS Code Features:**
+- Automated build system with error detection
+- Pre-build validation and error resolution
+- Integrated Swift syntax checking
+- Custom tasks for common operations
+- Git integration and debugging support
 
 ### Project Structure
 

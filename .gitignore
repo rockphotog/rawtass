@@ -75,6 +75,13 @@ iOSInjectionProject/
 build/
 DerivedData/
 *.moved-aside
+
+## Rawtass Project Specific
+logs/*.log
+logs/validation_report_*.md
+logs/build_*.log
+*.bak
+test_syntax.swift
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -95,7 +102,20 @@ DerivedData/
 **/xcodebuild.log
 
 ## IDEs
-.vscode/
+# VS Code - keep shared configuration, ignore private data
+.vscode/workspace.code-workspace
+.vscode/.ropeproject
+.vscode/launch.json
+.vscode/ipch/
+.vscode/tasks.json.bak
+.vscode/settings.json.bak
+
+# Keep these VS Code files (shared configuration):
+# .vscode/settings.json
+# .vscode/extensions.json 
+# .vscode/tasks.json
+
+# Other IDEs
 .idea/
 
 ## Accio dependency management

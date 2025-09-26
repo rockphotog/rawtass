@@ -1,0 +1,55 @@
+{
+  "recommendations": [
+    // Essential Swift development
+    "sswg.swift-lang",
+    "vadimcn.vscode-lldb",
+    
+    // Apple platform development
+    "microsoft.vscode-ios-debug",
+    
+    // Git and version control
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    "github.copilot",
+    "github.copilot-chat",
+    
+    // Code formatting and quality
+    "esbenp.prettier-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "aaron-bond.better-comments",
+    
+    // Markdown and documentation
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-preview-github-styles",
+    "davidanson.vscode-markdownlint",
+    
+    // JSON and configuration files
+    "ms-vscode.vscode-json",
+    
+    // Shell scripting (for build scripts)
+    "timonwong.shellcheck",
+    "foxundermoon.shell-format",
+    
+    // Project management and organization
+    "ms-vscode.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    
+    // Themes and UI improvements (optional)
+    "pkief.material-icon-theme",
+    "github.github-vscode-theme",
+    
+    // Xcode project file support
+    "orta.vscode-ios-common-files",
+    
+    // Terminal enhancements
+    "ms-vscode.vscode-terminal-profiles",
+    
+    // File utilities
+    "alefragnani.project-manager",
+    "christian-kohler.path-intellisense"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.cpptools",
+    "ms-dotnettools.csharp"
+  ]
+}

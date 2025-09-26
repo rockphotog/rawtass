@@ -1,0 +1,82 @@
+{
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.rulers": [100, 120],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 100,
+  
+  // Swift-specific settings
+  "swift.path": "/usr/bin/swift",
+  "swift.diagnostics": true,
+  "swift.autoGenerateTests": true,
+  "swift.buildOnSave": false,
+  
+  // File associations for Swift and Xcode projects
+  "files.associations": {
+    "*.swift": "swift",
+    "*.h": "objective-c",
+    "*.m": "objective-c",
+    "*.mm": "objective-cpp",
+    "*.xcodeproj": "xml",
+    "*.xcworkspace": "xml",
+    "*.plist": "xml",
+    "*.entitlements": "xml"
+  },
+  
+  // Search and file exclusions
+  "search.exclude": {
+    "**/build/**": true,
+    "**/DerivedData/**": true,
+    "**/.build/**": true,
+    "**/logs/**": true,
+    "**/*.xcarchive/**": true
+  },
+  
+  "files.exclude": {
+    "**/build": true,
+    "**/DerivedData": true,
+    "**/.build": true,
+    "**/logs": false,
+    "**/.DS_Store": true
+  },
+  
+  // Terminal configuration
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "/bin/zsh",
+      "args": ["-l"]
+    }
+  },
+  
+  // Git configuration
+  "git.ignoreLimitWarning": true,
+  "git.autofetch": true,
+  
+  // JSON formatting
+  "json.format.enable": true,
+  
+  // Markdown settings for documentation
+  "markdown.preview.breaks": true,
+  "markdown.preview.linkify": true,
+  
+  // Workspace-specific settings
+  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.iconTheme": "vs-seti",
+  
+  // Code formatting and linting
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false,
+  
+  // IntelliSense and code completion
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  
+  // Debugging configuration
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.showInStatusBar": "always"
+}
