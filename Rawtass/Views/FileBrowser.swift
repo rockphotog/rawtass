@@ -2,10 +2,16 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct FileBrowser: View {
-    @State private var currentDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+    @State private var currentDirectory: URL = {
+        // Start with Pictures folder since it has sandbox access
+        let picturesURL = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)
+            .first
+        return picturesURL ?? FileManager.default.homeDirectoryForCurrentUser
+    }()
     @State private var contents: [URL] = []
     @State private var selectedFile: URL?
     @State private var showingFilePicker = false
+    @State private var accessingSecurityScopedResource: URL?
 
     let supportedTypes: [UTType]
     let onFileSelected: (URL) -> Void
@@ -33,6 +39,7 @@ struct FileBrowser: View {
                 } label: {
                     Image(systemName: "folder")
                 }
+                .help("Choose folder with pictures")
 
                 Spacer()
 
@@ -77,17 +84,55 @@ struct FileBrowser: View {
             Divider()
 
             // File list
-            List(filteredContents, id: \.path, selection: $selectedFile) { url in
-                FileRow(url: url, isSupported: isSupportedFile(url)) {
-                    if url.hasDirectoryPath {
-                        currentDirectory = url
-                        refreshContents()
-                    } else if isSupportedFile(url) {
-                        onFileSelected(url)
+            if filteredContents.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "folder.badge.questionmark")
+                        .font(.system(size: 32))
+                        .foregroundColor(.secondary)
+
+                    Text("No images found")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    VStack(spacing: 6) {
+                        Text("To view images:")
+                        Text("• Use the folder button to select a folder with images")
+                        Text("• Or navigate to your Pictures folder")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+
+                    Button("Open Pictures Folder") {
+                        if let picturesURL = FileManager.default.urls(
+                            for: .picturesDirectory, in: .userDomainMask
+                        ).first {
+                            currentDirectory = picturesURL
+                            refreshContents()
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List(filteredContents, id: \.path, selection: $selectedFile) { url in
+                    FileRow(url: url, isSupported: isSupportedFile(url)) {
+                        if url.hasDirectoryPath {
+                            currentDirectory = url
+                            refreshContents()
+                        } else if isSupportedFile(url) {
+                            print("DEBUG: Selected file: \(url.path)")
+                            onFileSelected(url)
+                        } else {
+                            print(
+                                "DEBUG: File not supported: \(url.path) - extension: \(url.pathExtension)"
+                            )
+                        }
                     }
                 }
+                .listStyle(.sidebar)
             }
-            .listStyle(.sidebar)
         }
         .frame(minWidth: 250)
         .onAppear {
@@ -101,8 +146,21 @@ struct FileBrowser: View {
             switch result {
             case .success(let urls):
                 if let url = urls.first {
-                    currentDirectory = url
-                    refreshContents()
+                    // Stop accessing previous security-scoped resource
+                    if let previousURL = accessingSecurityScopedResource {
+                        previousURL.stopAccessingSecurityScopedResource()
+                    }
+
+                    // Start accessing the new security-scoped resource for sandboxed access
+                    if url.startAccessingSecurityScopedResource() {
+                        accessingSecurityScopedResource = url
+                        currentDirectory = url
+                        refreshContents()
+                        print("DEBUG: Successfully gained access to: \(url.path)")
+                    } else {
+                        accessingSecurityScopedResource = nil
+                        print("DEBUG: Failed to gain access to: \(url.path)")
+                    }
                 }
             case .failure(let error):
                 print("Error selecting folder: \(error)")

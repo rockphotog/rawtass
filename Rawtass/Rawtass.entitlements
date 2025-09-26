@@ -2,7 +2,43 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- App Sandbox (required by Xcode in debug builds) -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	
+	<!-- File Access Permissions -->
+	<key>com.apple.security.files.user-selected.read-only</key>
+	<true/>
 	<key>com.apple.security.files.bookmarks.app-scope</key>
+	<true/>
+	
+	<!-- Standard User Folders -->
+	<key>com.apple.security.assets.pictures.read-only</key>
+	<true/>
+	<key>com.apple.security.files.downloads.read-only</key>
+	<true/>
+	
+	<!-- Desktop Access -->
+	<key>com.apple.security.assets.music.read-only</key>
+	<true/>
+	<key>com.apple.security.assets.movies.read-only</key>
+	<true/>
+	
+	<!-- Home Directory Access (temporary exception for development) -->
+	<key>com.apple.security.temporary-exception.files.home-relative-path.read-only</key>
+	<array>
+		<string>Desktop/</string>
+		<string>Documents/</string>
+		<string>Downloads/</string>
+		<string>Pictures/</string>
+	</array>
+	
+	<!-- Allow JIT for development -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+	
+	<!-- Allow unsigned executable memory for development -->
+	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
 	<true/>
 </dict>
 </plist>

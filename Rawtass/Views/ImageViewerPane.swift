@@ -1,5 +1,6 @@
 import CoreGraphics
 import CoreImage
+import Foundation
 import SwiftUI
 
 struct ImageViewerPane: View {
@@ -12,6 +13,18 @@ struct ImageViewerPane: View {
     @State private var processingOptions = RawProcessingOptions()
     @State private var errorMessage: String?
     @State private var imageSize: CGSize = .zero
+    @State private var baseScale: CGFloat = 1.0  // The base scale applied by SwiftUI's .fit
+    @State private var isInFitMode: Bool = true  // Track current mode for display
+
+    // Calculate the effective scale for display purposes
+    // Always show scale relative to fit-to-window as the baseline (100%)
+    private var displayScale: Int {
+        if baseScale > 0 {
+            return Int((scale / baseScale) * 100)
+        } else {
+            return 100
+        }
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -74,25 +87,35 @@ struct ImageViewerPane: View {
                                 Divider()
                                     .frame(height: 20)
 
-                                Text("Scale: \(Int(scale * 100))%")
+                                Text("Scale: \(displayScale)%")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                     .monospacedDigit()
 
                                 Button("Fit") {
-                                    withAnimation(.easeOut) {
-                                        fitImageToWindow(containerSize: geometry.size)
+                                    print("DEBUG: Fit button pressed, current scale: \(scale)")
+                                    withAnimation(.easeOut(duration: 0.3)) {
+                                        // Reset to fit mode - always works regardless of current zoom
+                                        scale = 1.0
+                                        offset = .zero
+                                        lastOffset = .zero
+                                        isInFitMode = true
                                     }
+                                    // Update baseScale after animation
+                                    fitImageToWindow(containerSize: geometry.size)
+                                    print(
+                                        "DEBUG: After fit - scale: \(scale), display: \(displayScale)%"
+                                    )
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.small)
 
                                 Button("1:1") {
+                                    print("DEBUG: 1:1 button pressed, current scale: \(scale)")
                                     withAnimation(.easeOut) {
-                                        scale = 1.0
-                                        offset = .zero
-                                        lastOffset = .zero
+                                        setActualSize(containerSize: geometry.size)
                                     }
+                                    print("DEBUG: After setActualSize, scale: \(scale)")
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.small)
@@ -113,6 +136,10 @@ struct ImageViewerPane: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .clipped()
                             .background(Color.black)
+                            .onAppear {
+                                // Auto-fit to window when image first appears
+                                fitImageToWindow(containerSize: geometry.size)
+                            }
                         }
                     }
                 } else {
@@ -151,11 +178,13 @@ struct ImageViewerPane: View {
     private func loadImage() {
         guard let imageURL = selectedImageURL else { return }
 
+        print("DEBUG: Starting to load image: \(imageURL.path)")
         isLoading = true
         errorMessage = nil
 
         Task {
             do {
+                print("DEBUG: Processing image with RawImageProcessor...")
                 let cgImage = await RawImageProcessor.processRawImage(
                     from: imageURL,
                     options: processingOptions
@@ -163,13 +192,13 @@ struct ImageViewerPane: View {
 
                 await MainActor.run {
                     if let cgImage = cgImage {
+                        print(
+                            "DEBUG: Successfully loaded image: \(cgImage.width)x\(cgImage.height)")
                         self.image = cgImage
                         self.imageSize = CGSize(width: cgImage.width, height: cgImage.height)
-                        // Auto-fit to window by default
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            self.fitImageToWindow(containerSize: CGSize(width: 800, height: 600))
-                        }
+                        // Auto-fit to window by default - will be called when geometry is available
                     } else {
+                        print("DEBUG: Failed to load image - RawImageProcessor returned nil")
                         self.errorMessage = "Unsupported format or corrupted file"
                     }
                     self.isLoading = false
@@ -187,13 +216,51 @@ struct ImageViewerPane: View {
             height: max(containerSize.height - 100, 100)  // Account for header and padding
         )
 
+        // Calculate what scale SwiftUI's .fit would apply
         let scaleX = availableSize.width / imageSize.width
         let scaleY = availableSize.height / imageSize.height
-        let fitScale = min(scaleX, scaleY, 1.0)  // Don't scale up beyond 100%
+        let swiftUIFitScale = min(scaleX, scaleY)
 
-        scale = fitScale
+        // Update base scale for percentage calculations
+        baseScale = swiftUIFitScale
+
+        print(
+            "DEBUG: fitImageToWindow - Updated baseScale to \(baseScale), current scale: \(scale), display: \(displayScale)%"
+        )
+    }
+
+    private func setActualSize(containerSize: CGSize) {
+        guard let cgImage = image else { return }
+
+        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
+        let availableSize = CGSize(
+            width: max(containerSize.width - 32, 100),  // Account for padding
+            height: max(containerSize.height - 100, 100)  // Account for header and padding
+        )
+
+        // Calculate what scale SwiftUI's .fit would apply
+        let scaleX = availableSize.width / imageSize.width
+        let scaleY = availableSize.height / imageSize.height
+        let swiftUIFitScale = min(scaleX, scaleY)
+
+        // Always update base scale
+        baseScale = swiftUIFitScale
+
+        // For 1:1 (actual size), we want to show each image pixel as one screen pixel
+        // Since SwiftUI already applies fit scaling, we counteract it: scale = 1.0 / fitScale
+        // BUT limit this to reasonable values (max 500% zoom)
+        let actualSizeScale = 1.0 / swiftUIFitScale
+        scale = min(actualSizeScale, 5.0)  // Cap at 500% to avoid extreme zoom
         offset = .zero
         lastOffset = .zero
+        isInFitMode = false  // Mark as 1:1 mode
+
+        print(
+            "DEBUG: setActualSize - Image: \(Int(imageSize.width))x\(Int(imageSize.height)), Available: \(Int(availableSize.width))x\(Int(availableSize.height))"
+        )
+        print(
+            "DEBUG: setActualSize - fitScale: \(swiftUIFitScale), actualScale: \(actualSizeScale), final scale: \(scale), display: \(displayScale)%"
+        )
     }
 
     private func formatImageInfo() -> String {
