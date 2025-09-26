@@ -1,9 +1,10 @@
-import Foundation
 import CoreGraphics
+import Foundation
+import ImageIO
 
 /// Utility for detecting and analyzing raw image file formats
 struct RawFormatDetector {
-    
+
     /// Detailed information about a raw image file
     struct RawFileInfo {
         let format: RawImageFormat
@@ -19,7 +20,7 @@ struct RawFormatDetector {
         let fileSize: Int64
         let isSupported: Bool
     }
-    
+
     /// Analyze a raw image file and extract detailed information
     /// - Parameter url: File URL to analyze
     /// - Returns: Detailed file information
@@ -27,18 +28,43 @@ struct RawFormatDetector {
         guard let data = try? Data(contentsOf: url, options: [.mappedIfSafe]) else {
             return nil
         }
-        
+
         let format = RawImageProcessor.detectFormat(from: url)
         let fileAttributes = try? FileManager.default.attributesOfItem(atPath: url.path)
         let fileSize = fileAttributes?[.size] as? Int64 ?? 0
         let creationDate = fileAttributes?[.creationDate] as? Date
-        
+
         switch format {
         case .nikon(let compression):
-            return analyzeNikonNEF(data: data, compression: compression, fileSize: fileSize, creationDate: creationDate)
+            return analyzeNikonNEF(
+                data: data, compression: compression, fileSize: fileSize, creationDate: creationDate
+            )
         case .fujifilm(let compression):
-            return analyzeFujifilmRAF(data: data, compression: compression, fileSize: fileSize, creationDate: creationDate)
-        case .canon, .sony, .other:
+            return analyzeFujifilmRAF(
+                data: data, compression: compression, fileSize: fileSize, creationDate: creationDate
+            )
+        case .canon(let type):
+            return analyzeStandardRAW(
+                data: data, format: format, fileSize: fileSize, creationDate: creationDate,
+                formatName: "Canon \(type)")
+        case .sony(let type):
+            return analyzeStandardRAW(
+                data: data, format: format, fileSize: fileSize, creationDate: creationDate,
+                formatName: "Sony \(type)")
+        case .olympus, .panasonic, .pentax, .leica, .hasselblad, .phaseOne, .sigma, .kodak, .epson,
+            .minolta:
+            return analyzeStandardRAW(
+                data: data, format: format, fileSize: fileSize, creationDate: creationDate,
+                formatName: format.description)
+        case .adobe(let type):
+            return analyzeStandardRAW(
+                data: data, format: format, fileSize: fileSize, creationDate: creationDate,
+                formatName: "Adobe \(type)")
+        case .standardImage(let type):
+            return analyzeStandardImage(
+                data: data, format: format, type: type, fileSize: fileSize,
+                creationDate: creationDate)
+        case .other(let description):
             return RawFileInfo(
                 format: format,
                 cameraModel: nil,
@@ -55,15 +81,18 @@ struct RawFormatDetector {
             )
         }
     }
-    
+
     // MARK: - Nikon NEF Analysis
-    
-    private static func analyzeNikonNEF(data: Data, compression: RawImageFormat.NikonCompression, fileSize: Int64, creationDate: Date?) -> RawFileInfo {
+
+    private static func analyzeNikonNEF(
+        data: Data, compression: RawImageFormat.NikonCompression, fileSize: Int64,
+        creationDate: Date?
+    ) -> RawFileInfo {
         let exifData = extractBasicExifData(from: data, format: .nikon)
-        
+
         let compressionString: String
         let isSupported: Bool
-        
+
         switch compression {
         case .lossless:
             compressionString = "Lossless Compressed"
@@ -76,12 +105,12 @@ struct RawFormatDetector {
             isSupported = true
         case .highEfficiency:
             compressionString = "High Efficiency (HE)"
-            isSupported = false // Requires special decoder
+            isSupported = false  // Requires special decoder
         case .highEfficiencyStar:
             compressionString = "High Efficiency* (HE*)"
-            isSupported = false // Requires special decoder
+            isSupported = false  // Requires special decoder
         }
-        
+
         return RawFileInfo(
             format: .nikon(compression: compression),
             cameraModel: exifData.cameraModel ?? "Nikon Camera",
@@ -97,24 +126,27 @@ struct RawFormatDetector {
             isSupported: isSupported
         )
     }
-    
+
     // MARK: - Fujifilm RAF Analysis
-    
-    private static func analyzeFujifilmRAF(data: Data, compression: RawImageFormat.FujifilmCompression, fileSize: Int64, creationDate: Date?) -> RawFileInfo {
+
+    private static func analyzeFujifilmRAF(
+        data: Data, compression: RawImageFormat.FujifilmCompression, fileSize: Int64,
+        creationDate: Date?
+    ) -> RawFileInfo {
         let exifData = extractBasicExifData(from: data, format: .fujifilm)
-        
+
         let compressionString: String
         let isSupported: Bool
-        
+
         switch compression {
         case .lossless:
             compressionString = "Lossless Compressed"
             isSupported = true
         case .compressed:
             compressionString = "Compressed"
-            isSupported = false // May require special handling
+            isSupported = false  // May require special handling
         }
-        
+
         return RawFileInfo(
             format: .fujifilm(compression: compression),
             cameraModel: exifData.cameraModel ?? "Fujifilm Camera",
@@ -130,15 +162,15 @@ struct RawFormatDetector {
             isSupported: isSupported
         )
     }
-    
+
     // MARK: - EXIF Data Extraction
-    
+
     private enum CameraFormat {
         case nikon
         case fujifilm
         case generic
     }
-    
+
     private struct BasicExifData {
         let cameraModel: String?
         let imageSize: CGSize?
@@ -148,24 +180,29 @@ struct RawFormatDetector {
         let aperture: String?
         let focalLength: String?
     }
-    
-    private static func extractBasicExifData(from data: Data, format: CameraFormat) -> BasicExifData {
+
+    private static func extractBasicExifData(from data: Data, format: CameraFormat) -> BasicExifData
+    {
         // This is a simplified implementation
         // A real implementation would parse TIFF/EXIF headers properly
-        
+
         // Check for TIFF header
         guard data.count >= 8 else {
-            return BasicExifData(cameraModel: nil, imageSize: nil, colorDepth: nil, isoSpeed: nil, exposureTime: nil, aperture: nil, focalLength: nil)
+            return BasicExifData(
+                cameraModel: nil, imageSize: nil, colorDepth: nil, isoSpeed: nil, exposureTime: nil,
+                aperture: nil, focalLength: nil)
         }
-        
+
         let tiffHeader = data.subdata(in: 0..<4)
         let isBigEndian = tiffHeader == Data([0x4D, 0x4D, 0x00, 0x2A])
         let isLittleEndian = tiffHeader == Data([0x49, 0x49, 0x2A, 0x00])
-        
+
         guard isBigEndian || isLittleEndian else {
-            return BasicExifData(cameraModel: nil, imageSize: nil, colorDepth: nil, isoSpeed: nil, exposureTime: nil, aperture: nil, focalLength: nil)
+            return BasicExifData(
+                cameraModel: nil, imageSize: nil, colorDepth: nil, isoSpeed: nil, exposureTime: nil,
+                aperture: nil, focalLength: nil)
         }
-        
+
         // TODO: Implement proper TIFF/EXIF parsing
         // This would involve:
         // 1. Reading the IFD (Image File Directory) offset
@@ -178,13 +215,13 @@ struct RawFormatDetector {
         //    - 0x829A: Exposure time
         //    - 0x829D: F-number
         //    - 0x920A: Focal length
-        
+
         // For now, return placeholder data based on format
         switch format {
         case .nikon:
             return BasicExifData(
                 cameraModel: "Nikon Z Camera",
-                imageSize: CGSize(width: 8256, height: 5504), // Typical Z9 resolution
+                imageSize: CGSize(width: 8256, height: 5504),  // Typical Z9 resolution
                 colorDepth: 14,
                 isoSpeed: nil,
                 exposureTime: nil,
@@ -194,7 +231,7 @@ struct RawFormatDetector {
         case .fujifilm:
             return BasicExifData(
                 cameraModel: "Fujifilm X Camera",
-                imageSize: CGSize(width: 6240, height: 4160), // Typical X-T5 resolution
+                imageSize: CGSize(width: 6240, height: 4160),  // Typical X-T5 resolution
                 colorDepth: 14,
                 isoSpeed: nil,
                 exposureTime: nil,
@@ -202,16 +239,18 @@ struct RawFormatDetector {
                 focalLength: nil
             )
         case .generic:
-            return BasicExifData(cameraModel: nil, imageSize: nil, colorDepth: nil, isoSpeed: nil, exposureTime: nil, aperture: nil, focalLength: nil)
+            return BasicExifData(
+                cameraModel: nil, imageSize: nil, colorDepth: nil, isoSpeed: nil, exposureTime: nil,
+                aperture: nil, focalLength: nil)
         }
     }
-    
+
     /// Check if a file type is supported by the native macOS raw processing
     /// - Parameter url: File URL to check
     /// - Returns: True if natively supported, false if requires custom processing
     static func isNativelySupported(_ url: URL) -> Bool {
         let format = RawImageProcessor.detectFormat(from: url)
-        
+
         switch format {
         case .nikon(let compression):
             // HE and HE* formats are not natively supported
@@ -223,7 +262,7 @@ struct RawFormatDetector {
             return false
         }
     }
-    
+
     /// Get a human-readable description of why a file might not be supported
     /// - Parameter url: File URL to check
     /// - Returns: Support status description
@@ -231,11 +270,11 @@ struct RawFormatDetector {
         guard let fileInfo = analyzeRawFile(at: url) else {
             return "Unable to analyze file"
         }
-        
+
         if fileInfo.isSupported {
             return "Supported by native macOS processing"
         }
-        
+
         switch fileInfo.format {
         case .nikon(let compression):
             if compression == .highEfficiency || compression == .highEfficiencyStar {
@@ -248,7 +287,111 @@ struct RawFormatDetector {
         case .canon, .sony, .other:
             return "Unknown or unsupported raw format"
         }
-        
+
         return "Not supported by current decoder"
+    }
+
+    // MARK: - Helper Methods for Extended Format Support
+
+    /// Analyze standard RAW formats (Canon, Sony, Olympus, etc.)
+    private static func analyzeStandardRAW(
+        data: Data,
+        format: RawImageFormat,
+        fileSize: Int64,
+        creationDate: Date?,
+        formatName: String
+    ) -> RawFileInfo {
+        let exifData = extractBasicExifData(from: data, format: format)
+
+        return RawFileInfo(
+            format: format,
+            cameraModel: exifData.model,
+            compression: "Standard RAW",
+            imageSize: exifData.imageSize,
+            colorDepth: exifData.colorDepth,
+            isoSpeed: exifData.isoSpeed,
+            exposureTime: exifData.exposureTime,
+            aperture: exifData.aperture,
+            focalLength: exifData.focalLength,
+            creationDate: creationDate,
+            fileSize: fileSize,
+            isSupported: true  // LibRaw supports most standard RAW formats
+        )
+    }
+
+    /// Analyze standard image formats (JPEG, PNG, TIFF, etc.)
+    private static func analyzeStandardImage(
+        data: Data,
+        format: RawImageFormat,
+        type: RawImageFormat.StandardImageType,
+        fileSize: Int64,
+        creationDate: Date?
+    ) -> RawFileInfo {
+        // For standard images, we can use ImageIO for metadata
+        var exifData = ExifData()
+
+        if let imageSource = CGImageSourceCreateWithData(data as CFData, nil),
+            let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)
+                as? [String: Any]
+        {
+
+            // Extract image dimensions
+            if let pixelWidth = properties[kCGImagePropertyPixelWidth as String] as? Int,
+                let pixelHeight = properties[kCGImagePropertyPixelHeight as String] as? Int
+            {
+                exifData.imageSize = CGSize(width: pixelWidth, height: pixelHeight)
+            }
+
+            // Extract EXIF data if available
+            if let exifDict = properties[kCGImagePropertyExifDictionary as String] as? [String: Any]
+            {
+                exifData.isoSpeed = exifDict[kCGImagePropertyExifISOSpeedRatings as String] as? Int
+                exifData.exposureTime =
+                    exifDict[kCGImagePropertyExifExposureTime as String] as? Double
+                exifData.aperture = exifDict[kCGImagePropertyExifFNumber as String] as? Double
+                exifData.focalLength =
+                    exifData.focalLength =
+                    exifDict[kCGImagePropertyExifFocalLength as String] as? Double
+            }
+
+            // Extract camera info
+            if let tiffDict = properties[kCGImagePropertyTIFFDictionary as String] as? [String: Any]
+            {
+                let make = tiffDict[kCGImagePropertyTIFFMake as String] as? String ?? ""
+                let model = tiffDict[kCGImagePropertyTIFFModel as String] as? String ?? ""
+                exifData.model = "\(make) \(model)".trimmingCharacters(in: .whitespaces)
+            }
+        }
+
+        let compressionType: String
+        switch type {
+        case .jpeg:
+            compressionType = "JPEG Compression"
+        case .png:
+            compressionType = "PNG Compression"
+        case .tiff:
+            compressionType = "Uncompressed TIFF"
+        case .heic:
+            compressionType = "HEIC Compression"
+        case .webp:
+            compressionType = "WebP Compression"
+        default:
+            compressionType = "Standard Compression"
+        }
+
+        return RawFileInfo(
+            format: format,
+            cameraModel: exifData.model,
+            compression: compressionType,
+            imageSize: exifData.imageSize,
+            colorDepth: exifData.colorDepth,
+            isoSpeed: exifData.isoSpeed,
+            exposureTime: exifData.exposureTime,
+            aperture: exifData.aperture,
+            focalLength: exifData.focalLength,
+            creationDate: creationDate,
+            fileSize: fileSize,
+            isSupported: true  // All standard formats supported
+        )
     }
 }

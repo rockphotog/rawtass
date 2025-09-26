@@ -3,8 +3,15 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-/// Core raw image processing engine
+/// Core raw image processing engine with LibRaw integration
 class RawImageProcessor {
+
+    /// Processing backend options
+    enum ProcessingBackend {
+        case coreImage  // macOS native (limited RAW support)
+        case libRaw  // Industry standard (comprehensive RAW support)
+        case automatic  // Choose best backend for format
+    }
 
     /// Detects the raw image format from file data
     /// - Parameter url: File URL to analyze
@@ -31,19 +38,54 @@ class RawImageProcessor {
     /// - Parameters:
     ///   - url: Raw image file URL
     ///   - options: Processing options
+    ///   - backend: Processing backend to use
     /// - Returns: Processed CGImage or nil if processing fails
     static func processRawImage(
-        from url: URL, options: RawProcessingOptions = RawProcessingOptions()
+        from url: URL,
+        options: RawProcessingOptions = RawProcessingOptions(),
+        backend: ProcessingBackend = .automatic
     ) async -> CGImage? {
         let format = detectFormat(from: url)
+        let selectedBackend = selectBackend(for: format, requested: backend)
 
-        switch format {
-        case .nikon(let compression):
-            return await processNikonNEF(url: url, compression: compression, options: options)
-        case .fujifilm(let compression):
-            return await processFujifilmRAF(url: url, compression: compression, options: options)
-        case .canon, .sony, .other:
-            return nil
+        switch selectedBackend {
+        case .libRaw:
+            return await processWithLibRaw(url: url, options: options)
+        case .coreImage:
+            return await processWithCoreImage(url: url, options: options)
+        case .automatic:
+            // This case shouldn't occur after selectBackend, but fallback to LibRaw
+            return await processWithLibRaw(url: url, options: options)
+        }
+    }
+
+    /// Select the best processing backend for a given format
+    private static func selectBackend(for format: RawImageFormat, requested: ProcessingBackend)
+        -> ProcessingBackend
+    {
+        switch requested {
+        case .coreImage, .libRaw:
+            return requested
+        case .automatic:
+            // Choose LibRaw for compressed formats that Core Image doesn't support well
+            switch format {
+            case .nikon(let compression):
+                switch compression {
+                case .highEfficiency, .highEfficiencyStar:
+                    return .libRaw  // Core Image doesn't support HE/HE*
+                default:
+                    return .libRaw  // LibRaw generally better for all RAW
+                }
+            case .fujifilm(let compression):
+                switch compression {
+                case .compressed:
+                    return .libRaw  // Better compressed RAW support
+                default:
+                    return .libRaw
+                }
+            default:
+                return .libRaw  // LibRaw is more comprehensive
+            }
         }
     }
 
@@ -136,13 +178,84 @@ class RawImageProcessor {
         }
     }
 
+    /// Process with LibRaw (comprehensive RAW support)
+    private static func processWithLibRaw(url: URL, options: RawProcessingOptions) async -> CGImage?
+    {
+        return await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    #if LIBRAW_AVAILABLE
+                        // LibRaw processing (when integrated)
+                        let processor = LibRawProcessor()
+                        try processor.open(url: url)
+
+                        // Convert RawProcessingOptions to LibRaw ProcessingOptions
+                        let librawOptions = ProcessingOptions(
+                            brightness: options.exposureAdjustment,
+                            highlight: options.highlightRecovery,
+                            shadows: options.shadowRecovery,
+                            whiteBalance: convertWhiteBalance(options.whiteBalance),
+                            colorSpace: convertColorSpace(options.colorSpace),
+                            outputBitDepth: options.outputBitDepth == .sixteen ? 16 : 8
+                        )
+
+                        let cgImage = try processor.process(options: librawOptions)
+                        continuation.resume(returning: cgImage)
+                    #else
+                        // Fallback to Core Image if LibRaw not available
+                        Task {
+                            let fallbackImage = await processWithCoreImage(
+                                url: url, options: options)
+                            continuation.resume(returning: fallbackImage)
+                        }
+                    #endif
+                } catch {
+                    // If LibRaw fails, try Core Image as fallback
+                    Task {
+                        let fallbackImage = await processWithCoreImage(url: url, options: options)
+                        continuation.resume(returning: fallbackImage)
+                    }
+                }
+            }
+        }
+    }
+
+    #if LIBRAW_AVAILABLE
+        /// Convert RawProcessingOptions white balance to LibRaw format
+        private static func convertWhiteBalance(_ wb: RawProcessingOptions.WhiteBalanceMode)
+            -> ProcessingOptions.WhiteBalance
+        {
+            switch wb {
+            case .auto:
+                return .auto
+            case .daylight:
+                return .daylight
+            case .custom(let temp, let tint):
+                return .custom(temperature: temp, tint: tint)
+            default:
+                return .camera
+            }
+        }
+
+        /// Convert RawProcessingOptions color space to LibRaw format
+        private static func convertColorSpace(_ cs: RawProcessingOptions.ColorSpace)
+            -> ProcessingOptions.ColorSpace
+        {
+            switch cs {
+            case .sRGB:
+                return .sRGB
+            case .adobeRGB:
+                return .adobeRGB
+            case .prophotoRGB:
+                return .prophotoRGB
+            }
+        }
+    #endif
+
     private static func processWithFallbackDecoder(url: URL, options: RawProcessingOptions) async
         -> CGImage?
     {
-        // Placeholder for LibRaw or custom decoder integration
-        // This would be where we handle HE/HE* and other unsupported formats
-
-        // For now, attempt Core Image as fallback
-        return await processWithCoreImage(url: url, options: options)
+        // Legacy method - now redirects to LibRaw
+        return await processWithLibRaw(url: url, options: options)
     }
 }

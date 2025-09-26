@@ -1,12 +1,24 @@
 import Foundation
 import ImageIO
 
-/// Supported raw image formats with compression details
+/// Comprehensive image format support with LibRaw integration
 enum RawImageFormat {
     case nikon(compression: NikonCompression)
     case fujifilm(compression: FujifilmCompression)
-    case canon
-    case sony
+    case canon(type: CanonType)
+    case sony(type: SonyType)
+    case olympus
+    case panasonic
+    case pentax
+    case leica
+    case hasselblad
+    case phaseOne
+    case sigma
+    case kodak
+    case epson
+    case minolta
+    case adobe(type: AdobeType)
+    case standardImage(type: StandardImageType)
     case other(String)
 
     enum NikonCompression {
@@ -22,16 +34,66 @@ enum RawImageFormat {
         case compressed
     }
 
+    enum CanonType {
+        case cr2  // Canon RAW version 2
+        case cr3  // Canon RAW version 3 (newer)
+        case crw  // Canon RAW (older)
+    }
+
+    enum SonyType {
+        case arw  // Sony Alpha RAW
+        case srf  // Sony RAW Format
+        case sr2  // Sony RAW version 2
+    }
+
+    enum AdobeType {
+        case dng  // Digital Negative
+    }
+
+    enum StandardImageType {
+        case jpeg
+        case png
+        case tiff
+        case bmp
+        case gif
+        case heic
+        case webp
+    }
+
     var description: String {
         switch self {
         case .nikon(let compression):
             return "Nikon NEF (\(compression))"
         case .fujifilm(let compression):
             return "Fujifilm RAF (\(compression))"
-        case .canon:
-            return "Canon CR2/CR3"
-        case .sony:
-            return "Sony ARW"
+        case .canon(let type):
+            return "Canon \(type)"
+        case .sony(let type):
+            return "Sony \(type)"
+        case .olympus:
+            return "Olympus ORF"
+        case .panasonic:
+            return "Panasonic RW2/RAW"
+        case .pentax:
+            return "Pentax PEF"
+        case .leica:
+            return "Leica RWL/DNG"
+        case .hasselblad:
+            return "Hasselblad 3FR"
+        case .phaseOne:
+            return "Phase One IIQ"
+        case .sigma:
+            return "Sigma X3F"
+        case .kodak:
+            return "Kodak DCR/KDC"
+        case .epson:
+            return "Epson ERF"
+        case .minolta:
+            return "Minolta MRW"
+        case .adobe(let type):
+            return "Adobe \(type)"
+        case .standardImage(let type):
+            return "\(type)".uppercased()
         case .other(let format):
             return format
         }
