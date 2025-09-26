@@ -7,25 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		"1752ECA0-9D1B-4BBC-8166-4FA5580E82E4" /* RawImageFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = "996E7922-CF6A-468E-BF28-510D5BB0B0FB" /* RawImageFormat.swift */; };
 		A1B2C3D4E5F6071829AB0001 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0002 /* App.swift */; };
 		A1B2C3D4E5F6071829AB0003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0004 /* ContentView.swift */; };
 		A1B2C3D4E5F6071829AB0005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0006 /* Assets.xcassets */; };
 		A1B2C3D4E5F6071829AB0007 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0008 /* Preview Assets.xcassets */; };
 		A1B2C3D4E5F6071829AB0011 /* RawImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0012 /* RawImageProcessor.swift */; };
-		1752ECA0-9D1B-4BBC-8166-4FA5580E82E4 /* RawImageFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996E7922-CF6A-468E-BF28-510D5BB0B0FB /* RawImageFormat.swift */; };
 		A1B2C3D4E5F6071829AB0013 /* RawFormatDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0014 /* RawFormatDetector.swift */; };
 		A1B2C3D4E5F6071829AB0015 /* RawImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829AB0016 /* RawImageViewer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1B2C3D4E5F6071829AB0010 /* Rawtass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rawtass.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		"996E7922-CF6A-468E-BF28-510D5BB0B0FB" /* RawImageFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImageFormat.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0002 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0008 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0009 /* Rawtass.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rawtass.entitlements; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829AB0010 /* Rawtass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rawtass.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D4E5F6071829AB0012 /* RawImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImageProcessor.swift; sourceTree = "<group>"; };
-		996E7922-CF6A-468E-BF28-510D5BB0B0FB /* RawImageFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImageFormat.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0014 /* RawFormatDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawFormatDetector.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071829AB0016 /* RawImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawImageViewer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -49,14 +49,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F6071829AB0032 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A1B2C3D4E5F6071829AB0010 /* Rawtass.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		A1B2C3D4E5F6071829AB0031 /* Rawtass */ = {
 			isa = PBXGroup;
 			children = (
@@ -71,6 +63,22 @@
 			path = Rawtass;
 			sourceTree = "<group>";
 		};
+		A1B2C3D4E5F6071829AB0032 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6071829AB0010 /* Rawtass.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6071829AB0033 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6071829AB0008 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		A1B2C3D4E5F6071829AB0034 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -83,18 +91,10 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6071829AB0012 /* RawImageProcessor.swift */,
-				996E7922-CF6A-468E-BF28-510D5BB0B0FB /* RawImageFormat.swift */,
+				"996E7922-CF6A-468E-BF28-510D5BB0B0FB" /* RawImageFormat.swift */,
 				A1B2C3D4E5F6071829AB0014 /* RawFormatDetector.swift */,
 			);
 			path = RawProcessing;
-			sourceTree = "<group>";
-		};
-		A1B2C3D4E5F6071829AB0033 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				A1B2C3D4E5F6071829AB0008 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -170,7 +170,7 @@
 				A1B2C3D4E5F6071829AB0003 /* ContentView.swift in Sources */,
 				A1B2C3D4E5F6071829AB0001 /* App.swift in Sources */,
 				A1B2C3D4E5F6071829AB0011 /* RawImageProcessor.swift in Sources */,
-				1752ECA0-9D1B-4BBC-8166-4FA5580E82E4 /* RawImageFormat.swift in Sources */,
+				"1752ECA0-9D1B-4BBC-8166-4FA5580E82E4" /* RawImageFormat.swift in Sources */,
 				A1B2C3D4E5F6071829AB0013 /* RawFormatDetector.swift in Sources */,
 				A1B2C3D4E5F6071829AB0015 /* RawImageViewer.swift in Sources */,
 			);
@@ -302,22 +302,37 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Rawtass/Rawtass.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Rawtass/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Rawtass;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Rawtass;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -330,22 +345,37 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Rawtass/Rawtass.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Rawtass/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Rawtass;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Rawtass;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -356,20 +386,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1B2C3D4E5F6071829AB0061 /* Build configuration list for PBXProject "Rawtass" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A1B2C3D4E5F6071829AB0070 /* Debug */,
-				A1B2C3D4E5F6071829AB0071 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A1B2C3D4E5F6071829AB0050 /* Build configuration list for PBXNativeTarget "Rawtass" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1B2C3D4E5F6071829AB0080 /* Debug */,
 				A1B2C3D4E5F6071829AB0081 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D4E5F6071829AB0061 /* Build configuration list for PBXProject "Rawtass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F6071829AB0070 /* Debug */,
+				A1B2C3D4E5F6071829AB0071 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
