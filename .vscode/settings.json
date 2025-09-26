@@ -4,10 +4,7 @@
   "editor.insertSpaces": true,
   "editor.rulers": [100, 120],
   "editor.wordWrap": "wordWrapColumn",
-  "editor.wordWrapColumn": 100,
-  
-  // Swift-specific settings
-  "swift.path": "/usr/bin/swift",
+"editor.wordWrapColumn": 100,
   "swift.diagnostics": true,
   "swift.autoGenerateTests": true,
   "swift.buildOnSave": false,

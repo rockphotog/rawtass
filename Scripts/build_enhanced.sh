@@ -271,12 +271,14 @@ enhanced_build() {
             build
         )
         
-        if "${xcodebuild_cmd[@]}" 2>&1 | tee -a "$BUILD_LOG"; then
+        "${xcodebuild_cmd[@]}" 2>&1 | tee -a "$BUILD_LOG"
+        local exit_code=${PIPESTATUS[0]}
+        
+        if [[ $exit_code -eq 0 ]]; then
             print_success "Xcode build completed successfully"
             log_message "Xcode build completed successfully"
             return 0
         else
-            local exit_code=${PIPESTATUS[0]}
             print_error "Xcode build failed (exit code: $exit_code)"
             log_error "Xcode build failed (exit code: $exit_code)"
             

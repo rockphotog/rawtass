@@ -6,16 +6,16 @@ struct ContentView: View {
     @State private var showingFilePicker = false
     @State private var showingImageViewer = false
     @State private var recentFiles: [URL] = []
-    
+
     private let supportedTypes: [UTType] = [
         UTType(filenameExtension: "nef")!,  // Nikon RAW
         UTType(filenameExtension: "raf")!,  // Fujifilm RAW
         UTType(filenameExtension: "cr2")!,  // Canon RAW
         UTType(filenameExtension: "cr3")!,  // Canon RAW
         UTType(filenameExtension: "arw")!,  // Sony RAW
-        UTType(filenameExtension: "dng")!   // Adobe DNG
+        UTType(filenameExtension: "dng")!,  // Adobe DNG
     ]
-    
+
     var body: some View {
         VStack(spacing: 30) {
             // Header
@@ -24,25 +24,25 @@ struct ContentView: View {
                     .imageScale(.large)
                     .foregroundStyle(.tint)
                     .font(.system(size: 64))
-                
+
                 Text("Rawtass")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                
+
                 Text("Fast RAW Image Viewer")
                     .font(.title2)
                     .foregroundStyle(.secondary)
-                
+
                 Text("Specialized for compressed Nikon Z (HE/HE*) and Fujifilm formats")
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-            
+
             Divider()
                 .padding(.horizontal)
-            
+
             // Actions
             VStack(spacing: 16) {
                 Button {
@@ -56,7 +56,7 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                
+
                 Button {
                     openWithFinder()
                 } label: {
@@ -69,17 +69,17 @@ struct ContentView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.large)
             }
-            
+
             // Recent files
             if !recentFiles.isEmpty {
                 Divider()
                     .padding(.horizontal)
-                
+
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Recent Files")
                         .font(.headline)
                         .foregroundStyle(.secondary)
-                    
+
                     LazyVStack(spacing: 8) {
                         ForEach(recentFiles, id: \.path) { url in
                             RecentFileRow(url: url) {
@@ -91,9 +91,9 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
             }
-            
+
             Spacer()
-            
+
             // Status
             HStack(spacing: 20) {
                 Label("Supports: NEF, RAF, CR2, CR3, ARW, DNG", systemImage: "checkmark.circle")
@@ -117,9 +117,10 @@ struct ContentView: View {
                 print("Error selecting file: \(error)")
             }
         }
-        .fullScreenCover(isPresented: $showingImageViewer) {
+        .sheet(isPresented: $showingImageViewer) {
             if let url = selectedImageURL {
                 RawImageViewer(imageURL: url)
+                    .frame(minWidth: 800, minHeight: 600)
             }
         }
         .onAppear {
@@ -129,34 +130,34 @@ struct ContentView: View {
             handleDrop(providers: providers)
         }
     }
-    
+
     private func openImage(_ url: URL) {
         // Start accessing the security-scoped resource
         _ = url.startAccessingSecurityScopedResource()
-        
+
         selectedImageURL = url
         addToRecentFiles(url)
         showingImageViewer = true
     }
-    
+
     private func openWithFinder() {
         let openPanel = NSOpenPanel()
         openPanel.allowedContentTypes = supportedTypes
         openPanel.allowsMultipleSelection = false
         openPanel.canChooseDirectories = false
         openPanel.canChooseFiles = true
-        
+
         openPanel.begin { result in
             if result == .OK, let url = openPanel.url {
                 openImage(url)
             }
         }
     }
-    
+
     private func handleDrop(providers: [NSItemProvider]) -> Bool {
         for provider in providers {
             if provider.canLoadObject(ofClass: URL.self) {
-                provider.loadObject(ofClass: URL.self) { url, _ in
+                _ = provider.loadObject(ofClass: URL.self) { url, _ in
                     if let url = url {
                         DispatchQueue.main.async {
                             openImage(url)
@@ -168,22 +169,23 @@ struct ContentView: View {
         }
         return false
     }
-    
+
     private func addToRecentFiles(_ url: URL) {
         recentFiles.removeAll { $0.path == url.path }
         recentFiles.insert(url, at: 0)
-        recentFiles = Array(recentFiles.prefix(5)) // Keep only 5 recent files
+        recentFiles = Array(recentFiles.prefix(5))  // Keep only 5 recent files
         saveRecentFiles()
     }
-    
+
     private func loadRecentFiles() {
         // Load recent files from UserDefaults
         if let data = UserDefaults.standard.data(forKey: "RecentFiles"),
-           let urls = try? JSONDecoder().decode([URL].self, from: data) {
+            let urls = try? JSONDecoder().decode([URL].self, from: data)
+        {
             recentFiles = urls.filter { FileManager.default.fileExists(atPath: $0.path) }
         }
     }
-    
+
     private func saveRecentFiles() {
         if let data = try? JSONEncoder().encode(recentFiles) {
             UserDefaults.standard.set(data, forKey: "RecentFiles")
@@ -194,26 +196,26 @@ struct ContentView: View {
 struct RecentFileRow: View {
     let url: URL
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack {
                 Image(systemName: fileIcon)
                     .foregroundColor(.secondary)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(url.lastPathComponent)
                         .font(.body)
                         .lineLimit(1)
-                    
+
                     Text(url.deletingLastPathComponent().path)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
-                
+
                 Spacer()
-                
+
                 if let fileSize = getFileSize() {
                     Text(fileSize)
                         .font(.caption)
@@ -225,7 +227,7 @@ struct RecentFileRow: View {
         .buttonStyle(.plain)
         .padding(.vertical, 4)
     }
-    
+
     private var fileIcon: String {
         switch url.pathExtension.lowercased() {
         case "nef": return "camera.macro.circle"
@@ -236,13 +238,14 @@ struct RecentFileRow: View {
         default: return "photo"
         }
     }
-    
+
     private func getFileSize() -> String? {
         guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
-              let size = attributes[.size] as? Int64 else {
+            let size = attributes[.size] as? Int64
+        else {
             return nil
         }
-        
+
         let formatter = ByteCountFormatter()
         formatter.countStyle = .file
         return formatter.string(fromByteCount: size)
