@@ -10,6 +10,12 @@ Under development
 
 Rawtass is a native macOS application built with Swift and SwiftUI, optimized for Apple Silicon Macs.
 
+## Development plan
+
+Make a fast image viewer for (compressed) raw images, especially the compressed raw formats for Nikon Z (HE/HE* formats) and Fujifilm X camera/sensors, which is not supported by native MacOS. The app should work as a Finder extension.
+
+The Nikon HE/HE* compressed raw formats are patented and specifications is not easily available per now. 
+
 ## Development Environment Setup
 
 ### Prerequisites
