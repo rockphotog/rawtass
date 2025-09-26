@@ -1,4 +1,5 @@
 import Foundation
+import CoreGraphics
 
 /// Utility for detecting and analyzing raw image file formats
 struct RawFormatDetector {
@@ -33,11 +34,11 @@ struct RawFormatDetector {
         let creationDate = fileAttributes?[.creationDate] as? Date
         
         switch format {
-        case .nikonNEF(let compression):
+        case .nikon(let compression):
             return analyzeNikonNEF(data: data, compression: compression, fileSize: fileSize, creationDate: creationDate)
-        case .fujifilmRAF(let compression):
+        case .fujifilm(let compression):
             return analyzeFujifilmRAF(data: data, compression: compression, fileSize: fileSize, creationDate: creationDate)
-        case .unknown:
+        case .canon, .sony, .other:
             return RawFileInfo(
                 format: format,
                 cameraModel: nil,
@@ -64,22 +65,25 @@ struct RawFormatDetector {
         let isSupported: Bool
         
         switch compression {
-        case .uncompressed:
-            compressionString = "Uncompressed"
-            isSupported = true
         case .lossless:
             compressionString = "Lossless Compressed"
             isSupported = true
-        case .he:
+        case .lossy:
+            compressionString = "Lossy Compressed"
+            isSupported = true
+        case .losslessCompressed:
+            compressionString = "Lossless Compressed"
+            isSupported = true
+        case .highEfficiency:
             compressionString = "High Efficiency (HE)"
             isSupported = false // Requires special decoder
-        case .heStar:
+        case .highEfficiencyStar:
             compressionString = "High Efficiency* (HE*)"
             isSupported = false // Requires special decoder
         }
         
         return RawFileInfo(
-            format: .nikonNEF(compression: compression),
+            format: .nikon(compression: compression),
             cameraModel: exifData.cameraModel ?? "Nikon Camera",
             compression: compressionString,
             imageSize: exifData.imageSize,
@@ -103,9 +107,6 @@ struct RawFormatDetector {
         let isSupported: Bool
         
         switch compression {
-        case .uncompressed:
-            compressionString = "Uncompressed"
-            isSupported = true
         case .lossless:
             compressionString = "Lossless Compressed"
             isSupported = true
@@ -115,7 +116,7 @@ struct RawFormatDetector {
         }
         
         return RawFileInfo(
-            format: .fujifilmRAF(compression: compression),
+            format: .fujifilm(compression: compression),
             cameraModel: exifData.cameraModel ?? "Fujifilm Camera",
             compression: compressionString,
             imageSize: exifData.imageSize,
@@ -212,13 +213,13 @@ struct RawFormatDetector {
         let format = RawImageProcessor.detectFormat(from: url)
         
         switch format {
-        case .nikonNEF(let compression):
+        case .nikon(let compression):
             // HE and HE* formats are not natively supported
-            return compression != .he && compression != .heStar
-        case .fujifilmRAF(let compression):
+            return compression != .highEfficiency && compression != .highEfficiencyStar
+        case .fujifilm(let compression):
             // Most Fujifilm compressed formats need special handling
             return compression != .compressed
-        case .unknown:
+        case .canon, .sony, .other:
             return false
         }
     }
@@ -236,15 +237,15 @@ struct RawFormatDetector {
         }
         
         switch fileInfo.format {
-        case .nikonNEF(let compression):
-            if compression == .he || compression == .heStar {
+        case .nikon(let compression):
+            if compression == .highEfficiency || compression == .highEfficiencyStar {
                 return "Nikon HE/HE* compression requires specialized decoder (coming soon)"
             }
-        case .fujifilmRAF(let compression):
+        case .fujifilm(let compression):
             if compression == .compressed {
                 return "Fujifilm compressed RAW requires specialized decoder (coming soon)"
             }
-        case .unknown:
+        case .canon, .sony, .other:
             return "Unknown or unsupported raw format"
         }
         

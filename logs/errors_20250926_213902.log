@@ -1,0 +1,14 @@
+2025-09-26 21:39:03 - ERROR: Scheme Rawtass not found
+2025-09-26 21:39:03 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/RawProcessing/RawFormatDetector.swift
+error: option '-parse' is not supported by 'swift'; did you mean to use 'swiftc'?
+2025-09-26 21:39:03 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/RawProcessing/RawImageFormat.swift
+error: option '-parse' is not supported by 'swift'; did you mean to use 'swiftc'?
+2025-09-26 21:39:03 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/RawProcessing/RawImageProcessor.swift
+error: option '-parse' is not supported by 'swift'; did you mean to use 'swiftc'?
+2025-09-26 21:39:03 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/App.swift
+error: option '-parse' is not supported by 'swift'; did you mean to use 'swiftc'?
+2025-09-26 21:39:03 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/Views/RawImageViewer.swift
+error: option '-parse' is not supported by 'swift'; did you mean to use 'swiftc'?
+2025-09-26 21:39:03 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/ContentView.swift
+error: option '-parse' is not supported by 'swift'; did you mean to use 'swiftc'?
+2025-09-26 21:39:03 - ERROR: Swift syntax check failed with 6 errors

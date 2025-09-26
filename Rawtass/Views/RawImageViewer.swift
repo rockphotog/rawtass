@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreImage
+import CoreGraphics
 
 struct RawImageViewer: View {
     let imageURL: URL
@@ -8,7 +9,7 @@ struct RawImageViewer: View {
     @State private var scale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
-    @State private var processingOptions = RawProcessingOptions.default
+    @State private var processingOptions = RawProcessingOptions()
     @State private var showControls = true
     @State private var errorMessage: String?
     
@@ -149,9 +150,7 @@ struct RawImageViewer: View {
         .onAppear {
             loadImage()
         }
-        .keyboardShortcut(.escape, modifiers: []) {
-            dismiss()
-        }
+        .keyboardShortcut(.escape, modifiers: [])
     }
     
     private func loadImage() {
@@ -199,7 +198,7 @@ struct RawImageViewer: View {
         
         let width = cgImage.width
         let height = cgImage.height
-        let colorSpace = cgImage.colorSpace?.name ?? "Unknown"
+        let colorSpace = cgImage.colorSpace?.name.flatMap { String($0) } ?? "Unknown"
         let bitsPerComponent = cgImage.bitsPerComponent
         
         return "\(width) × \(height) • \(bitsPerComponent) bit • \(colorSpace)"
@@ -246,9 +245,9 @@ struct ZoomableImageView: View {
     }
 }
 
-#Preview {
-    // This would need a sample raw image file for testing
-    Text("RawImageViewer Preview")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black)
+struct RawImageViewer_Previews: PreviewProvider {
+    static var previews: some View {
+        // This would need a sample raw image file for testing
+        Text("RawImageViewer Preview")
+    }
 }

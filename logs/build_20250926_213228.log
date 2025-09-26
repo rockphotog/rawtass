@@ -1,0 +1,15 @@
+2025-09-26 21:32:28 - Starting prerequisite check
+2025-09-26 21:32:28 - Xcode version: 
+2025-09-26 21:32:28 - ERROR: Scheme Rawtass not found
+2025-09-26 21:32:28 - Prerequisites check completed successfully
+2025-09-26 21:32:28 - Starting project structure validation
+2025-09-26 21:32:28 - Project structure validation completed successfully
+2025-09-26 21:32:28 - Starting Swift syntax check
+2025-09-26 21:32:28 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/RawProcessing/RawFormatDetector.swift
+2025-09-26 21:32:28 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/RawProcessing/RawImageProcessor.swift
+2025-09-26 21:32:28 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/App.swift
+2025-09-26 21:32:28 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/Views/RawImageViewer.swift
+2025-09-26 21:32:28 - ERROR: Syntax error in: /Users/espen/git/rawtass/Rawtass/ContentView.swift
+2025-09-26 21:32:28 - ERROR: Swift syntax check failed with 5 errors
+2025-09-26 21:32:28 - Starting build cleanup
+xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance

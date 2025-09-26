@@ -217,7 +217,7 @@ struct RecentFileRow: View {
                 if let fileSize = getFileSize() {
                     Text(fileSize)
                         .font(.caption)
-                        .foregroundColor(.tertiary)
+                        .foregroundStyle(.tertiary)
                 }
             }
             .contentShape(Rectangle())
@@ -249,6 +249,8 @@ struct RecentFileRow: View {
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
