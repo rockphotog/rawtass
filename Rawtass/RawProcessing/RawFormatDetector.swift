@@ -64,7 +64,7 @@ struct RawFormatDetector {
             return analyzeStandardImage(
                 data: data, format: format, type: type, fileSize: fileSize,
                 creationDate: creationDate)
-        case .other(let description):
+        case .other(_):
             return RawFileInfo(
                 format: format,
                 cameraModel: nil,
@@ -258,7 +258,16 @@ struct RawFormatDetector {
         case .fujifilm(let compression):
             // Most Fujifilm compressed formats need special handling
             return compression != .compressed
-        case .canon, .sony, .other:
+        case .canon, .sony:
+            return false
+        case .olympus, .panasonic, .pentax, .leica, .hasselblad, .phaseOne, .sigma, .kodak, .epson,
+            .minolta:
+            return false
+        case .adobe:
+            return true  // DNG is generally well supported
+        case .standardImage:
+            return true  // Standard formats are always supported
+        case .other:
             return false
         }
     }
@@ -284,8 +293,34 @@ struct RawFormatDetector {
             if compression == .compressed {
                 return "Fujifilm compressed RAW requires specialized decoder (coming soon)"
             }
-        case .canon, .sony, .other:
-            return "Unknown or unsupported raw format"
+        case .canon, .sony:
+            return "RAW format requires specialized decoder (coming soon)"
+        case .olympus:
+            return "Olympus ORF format requires specialized decoder (coming soon)"
+        case .panasonic:
+            return "Panasonic RAW format requires specialized decoder (coming soon)"
+        case .pentax:
+            return "Pentax PEF format requires specialized decoder (coming soon)"
+        case .leica:
+            return "Leica RAW format requires specialized decoder (coming soon)"
+        case .hasselblad:
+            return "Hasselblad 3FR format requires specialized decoder (coming soon)"
+        case .phaseOne:
+            return "Phase One IIQ format requires specialized decoder (coming soon)"
+        case .sigma:
+            return "Sigma X3F format requires specialized decoder (coming soon)"
+        case .kodak:
+            return "Kodak RAW format requires specialized decoder (coming soon)"
+        case .epson:
+            return "Epson ERF format requires specialized decoder (coming soon)"
+        case .minolta:
+            return "Minolta MRW format requires specialized decoder (coming soon)"
+        case .adobe(let type):
+            return "Adobe \(type) format requires specialized decoder (coming soon)"
+        case .standardImage(let type):
+            return "\(type) format is supported"
+        case .other:
+            return "Unknown or unsupported format"
         }
 
         return "Not supported by current decoder"
@@ -301,11 +336,11 @@ struct RawFormatDetector {
         creationDate: Date?,
         formatName: String
     ) -> RawFileInfo {
-        let exifData = extractBasicExifData(from: data, format: format)
+        let exifData = extractBasicExifData(from: data, format: .generic)
 
         return RawFileInfo(
             format: format,
-            cameraModel: exifData.model,
+            cameraModel: exifData.cameraModel ?? formatName,
             compression: "Standard RAW",
             imageSize: exifData.imageSize,
             colorDepth: exifData.colorDepth,
@@ -328,7 +363,13 @@ struct RawFormatDetector {
         creationDate: Date?
     ) -> RawFileInfo {
         // For standard images, we can use ImageIO for metadata
-        var exifData = ExifData()
+        var cameraModel: String? = nil
+        var imageSize: CGSize? = nil
+        let colorDepth: Int? = nil
+        var isoSpeed: Int? = nil
+        var exposureTime: String? = nil
+        var aperture: String? = nil
+        var focalLength: String? = nil
 
         if let imageSource = CGImageSourceCreateWithData(data as CFData, nil),
             let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)
@@ -339,19 +380,26 @@ struct RawFormatDetector {
             if let pixelWidth = properties[kCGImagePropertyPixelWidth as String] as? Int,
                 let pixelHeight = properties[kCGImagePropertyPixelHeight as String] as? Int
             {
-                exifData.imageSize = CGSize(width: pixelWidth, height: pixelHeight)
+                imageSize = CGSize(width: pixelWidth, height: pixelHeight)
             }
 
             // Extract EXIF data if available
             if let exifDict = properties[kCGImagePropertyExifDictionary as String] as? [String: Any]
             {
-                exifData.isoSpeed = exifDict[kCGImagePropertyExifISOSpeedRatings as String] as? Int
-                exifData.exposureTime =
-                    exifDict[kCGImagePropertyExifExposureTime as String] as? Double
-                exifData.aperture = exifDict[kCGImagePropertyExifFNumber as String] as? Double
-                exifData.focalLength =
-                    exifData.focalLength =
-                    exifDict[kCGImagePropertyExifFocalLength as String] as? Double
+                isoSpeed = exifDict[kCGImagePropertyExifISOSpeedRatings as String] as? Int
+                if let exposureTimeDouble = exifDict[kCGImagePropertyExifExposureTime as String]
+                    as? Double
+                {
+                    exposureTime = "1/\(Int(1.0 / exposureTimeDouble))"
+                }
+                if let apertureDouble = exifDict[kCGImagePropertyExifFNumber as String] as? Double {
+                    aperture = "f/\(apertureDouble)"
+                }
+                if let focalLengthDouble = exifDict[kCGImagePropertyExifFocalLength as String]
+                    as? Double
+                {
+                    focalLength = "\(focalLengthDouble)mm"
+                }
             }
 
             // Extract camera info
@@ -359,9 +407,19 @@ struct RawFormatDetector {
             {
                 let make = tiffDict[kCGImagePropertyTIFFMake as String] as? String ?? ""
                 let model = tiffDict[kCGImagePropertyTIFFModel as String] as? String ?? ""
-                exifData.model = "\(make) \(model)".trimmingCharacters(in: .whitespaces)
+                cameraModel = "\(make) \(model)".trimmingCharacters(in: .whitespaces)
             }
         }
+
+        let exifData = BasicExifData(
+            cameraModel: cameraModel,
+            imageSize: imageSize,
+            colorDepth: colorDepth,
+            isoSpeed: isoSpeed,
+            exposureTime: exposureTime,
+            aperture: aperture,
+            focalLength: focalLength
+        )
 
         let compressionType: String
         switch type {
@@ -381,7 +439,7 @@ struct RawFormatDetector {
 
         return RawFileInfo(
             format: format,
-            cameraModel: exifData.model,
+            cameraModel: exifData.cameraModel,
             compression: compressionType,
             imageSize: exifData.imageSize,
             colorDepth: exifData.colorDepth,
