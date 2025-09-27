@@ -31,51 +31,74 @@ struct FileBrowser: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Navigation header
-            HStack {
+            // Compact navigation header with modern styling
+            HStack(spacing: 6) {
+                // Navigation controls - more compact
                 Button {
                     navigateUp()
                 } label: {
-                    Image(systemName: "arrow.up")
+                    Image(systemName: "chevron.up")
+                        .font(.system(size: 11, weight: .medium))
                 }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
                 .disabled(currentDirectory.path == "/")
 
                 Button {
                     showingFilePicker = true
                 } label: {
                     Image(systemName: "folder")
+                        .font(.system(size: 11, weight: .medium))
                 }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
 
-                Divider()
+                Rectangle()
+                    .fill(Color.secondary.opacity(0.3))
+                    .frame(width: 0.5, height: 12)
 
-                // Quick access buttons - open file picker to select directories
-                Button {
-                    showingFilePicker = true
-                } label: {
-                    Image(systemName: "house")
+                // Compact quick access buttons
+                HStack(spacing: 4) {
+                    Button {
+                        showingFilePicker = true
+                    } label: {
+                        Image(systemName: "house.fill")
+                            .font(.system(size: 10))
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.mini)
+                    .help("Documents")
+
+                    Button {
+                        showingFilePicker = true
+                    } label: {
+                        Image(systemName: "photo.fill")
+                            .font(.system(size: 10))
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.mini)
+                    .help("Pictures")
+
+                    Button {
+                        showingFilePicker = true
+                    } label: {
+                        Image(systemName: "desktopcomputer")
+                            .font(.system(size: 10))
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.mini)
+                    .help("Desktop")
+
+                    Button {
+                        showingFilePicker = true
+                    } label: {
+                        Image(systemName: "arrow.down.circle.fill")
+                            .font(.system(size: 10))
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.mini)
+                    .help("Downloads")
                 }
-                .help("Select Documents folder")
-
-                Button {
-                    showingFilePicker = true
-                } label: {
-                    Image(systemName: "photo")
-                }
-                .help("Select Pictures folder")
-
-                Button {
-                    showingFilePicker = true
-                } label: {
-                    Image(systemName: "desktopcomputer")
-                }
-                .help("Select Desktop folder")
-
-                Button {
-                    showingFilePicker = true
-                } label: {
-                    Image(systemName: "square.and.arrow.down")
-                }
-                .help("Select Downloads folder")
 
                 Spacer()
 
@@ -83,43 +106,46 @@ struct FileBrowser: View {
                     refreshContents()
                 } label: {
                     Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 11, weight: .medium))
                 }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color(NSColor.controlBackgroundColor))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(.regularMaterial, in: Rectangle())
 
-            // Current path
+            // Sleek breadcrumb path
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     ForEach(pathComponents, id: \.self) { component in
                         Button {
                             navigateToComponent(component)
                         } label: {
                             Text(
                                 component.lastPathComponent.isEmpty
-                                    ? "/" : component.lastPathComponent
+                                    ? "~" : component.lastPathComponent
                             )
-                            .font(.caption)
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
                         }
                         .buttonStyle(.plain)
 
                         if component != pathComponents.last {
-                            Image(systemName: "chevron.right")
-                                .font(.caption2)
-                                .foregroundColor(Color.secondary)
+                            Image(systemName: "chevron.forward")
+                                .font(.system(size: 9))
+                                .foregroundColor(.secondary.opacity(0.6))
                         }
                     }
                 }
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 8)
             }
-            .frame(height: 24)
-            .background(Color(NSColor.controlBackgroundColor))
+            .frame(height: 20)
+            .background(.regularMaterial, in: Rectangle())
 
-            Divider()
-
-            // File list
+            // Sleek file list with more space
             List(filteredContents, id: \.path, selection: $selectedFile) { url in
                 FileRow(url: url, isSupported: isSupportedFile(url)) {
                     if url.hasDirectoryPath {
@@ -129,8 +155,11 @@ struct FileBrowser: View {
                         onFileSelected(url)
                     }
                 }
+                .listRowInsets(EdgeInsets(top: 2, leading: 8, bottom: 2, trailing: 8))
             }
-            .listStyle(.sidebar)
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(.regularMaterial)
         }
         .frame(minWidth: 250)
         .onAppear {
@@ -147,35 +176,36 @@ struct FileBrowser: View {
             switch result {
             case .success(let urls):
                 if let url = urls.first {
-                    // Start accessing the security-scoped resource
-                    let accessing = url.startAccessingSecurityScopedResource()
+                    // Improved security-scoped resource handling
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let accessing = url.startAccessingSecurityScopedResource()
+                        
+                        DispatchQueue.main.async {
+                            if accessing {
+                                // Track this resource for cleanup
+                                securityScopedResources.insert(url)
 
-                    if accessing {
-                        print("Successfully gained access to: \(url.path)")
+                                // Store a security-scoped bookmark for future access
+                                do {
+                                    let _ = try url.bookmarkData(options: .withSecurityScope)
+                                    // Successfully created bookmark - silent operation
+                                } catch {
+                                    // Silently handle bookmark creation errors
+                                }
 
-                        // Track this resource for cleanup
-                        securityScopedResources.insert(url)
-
-                        // Store a security-scoped bookmark for future access
-                        do {
-                            let bookmarkData = try url.bookmarkData(options: .withSecurityScope)
-                            // Save the bookmark (you could store this in UserDefaults for persistence)
-                            print("Created security-scoped bookmark for: \(url.path)")
-                        } catch {
-                            print("Failed to create bookmark: \(error)")
+                                currentDirectory = url
+                                refreshContents()
+                            } else {
+                                // Still try to navigate - maybe it's already accessible
+                                currentDirectory = url
+                                refreshContents()
+                            }
                         }
-
-                        currentDirectory = url
-                        refreshContents()
-                    } else {
-                        print("Failed to gain access to security-scoped resource: \(url.path)")
-                        // Still try to navigate - maybe it's already accessible
-                        currentDirectory = url
-                        refreshContents()
                     }
                 }
-            case .failure(let error):
-                print("Error selecting folder: \(error)")
+            case .failure(_):
+                // Silently handle file picker errors to reduce console noise
+                break
             }
         }
     }
@@ -206,16 +236,24 @@ struct FileBrowser: View {
     }
 
     private func refreshContents() {
-        do {
-            let urls = try FileManager.default.contentsOfDirectory(
-                at: currentDirectory,
-                includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey],
-                options: [.skipsHiddenFiles]
-            )
-            contents = urls
-        } catch {
-            print("Error reading directory: \(error)")
-            contents = []
+        // Improved error handling with reduced console noise
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let urls = try FileManager.default.contentsOfDirectory(
+                    at: currentDirectory,
+                    includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey],
+                    options: [.skipsHiddenFiles]
+                )
+                
+                DispatchQueue.main.async {
+                    self.contents = urls
+                }
+            } catch {
+                // Handle directory access errors silently to reduce system warnings
+                DispatchQueue.main.async {
+                    self.contents = []
+                }
+            }
         }
     }
 
@@ -295,37 +333,55 @@ struct FileRow: View {
     let action: () -> Void
 
     @State private var fileSize: String?
+    @State private var isHovered = false
 
     var body: some View {
         HStack(spacing: 8) {
+            // Modern icon with better spacing
             Image(systemName: iconName)
-                .frame(width: 16)
+                .font(.system(size: 14, weight: .medium))
+                .frame(width: 18, height: 18)
                 .foregroundColor(iconColor)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(url.lastPathComponent)
-                    .font(.system(size: 13))
+                    .font(.system(size: 12, weight: .medium))
                     .lineLimit(1)
+                    .truncationMode(.middle)
                     .foregroundColor(isSupported || url.hasDirectoryPath ? .primary : .secondary)
 
-                if let fileSize = fileSize {
+                if let fileSize = fileSize, !url.hasDirectoryPath {
                     Text(fileSize)
-                        .font(.system(size: 11))
-                        .foregroundColor(Color.secondary)
+                        .font(.system(size: 10, weight: .regular))
+                        .foregroundColor(.secondary)
+                        .opacity(0.8)
                 }
             }
 
             Spacer()
 
+            // Sleek support indicator
             if isSupported {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 12))
-                    .foregroundColor(.green)
+                Circle()
+                    .fill(.green)
+                    .frame(width: 6, height: 6)
+                    .opacity(0.8)
             }
         }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(isHovered ? Color.accentColor.opacity(0.1) : Color.clear)
+        )
         .contentShape(Rectangle())
         .onTapGesture {
             action()
+        }
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovered = hovering
+            }
         }
         .onAppear {
             loadFileSize()

@@ -1,6 +1,6 @@
 # Rawtass
 
-A little different.
+A little different. (Because it's not working ATM).
 
 ## Status
 

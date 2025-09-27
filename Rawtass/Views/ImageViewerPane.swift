@@ -84,17 +84,21 @@ struct ImageViewerPane: View {
                     if isLoading {
                         VStack(spacing: 16) {
                             ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .scaleEffect(1.2)
+                                .progressViewStyle(CircularProgressViewStyle(tint: .accentColor))
+                                .scaleEffect(1.1)
+                                .frame(width: 32, height: 32) // Fixed size to prevent constraints
 
                             Text("Loading image...")
-                                .font(.title3)
+                                .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.secondary)
 
                             Text(imageURL.lastPathComponent)
-                                .font(.caption)
-                                .foregroundColor(Color.secondary)
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
                         }
+                        .frame(maxWidth: 300) // Constrained width to prevent layout issues
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else if let errorMessage = errorMessage {
                         VStack(spacing: 16) {
@@ -120,31 +124,34 @@ struct ImageViewerPane: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else if let cgImage = image {
                         VStack(spacing: 0) {
-                            // Professional toolbar
-                            HStack {
-                                // Image name
+                            // Compact modern toolbar
+                            HStack(spacing: 8) {
+                                // Image name - more compact
                                 Text(imageURL.lastPathComponent)
-                                    .font(.headline)
+                                    .font(.system(size: 13, weight: .semibold))
                                     .lineLimit(1)
+                                    .truncationMode(.middle)
 
                                 Spacer()
 
-                                // Image info
+                                // Image info - smaller
                                 Text(formatImageInfo())
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-
-                                Divider()
-                                    .frame(height: 20)
-
-                                // Current zoom display
-                                Text(displayScale)
-                                    .font(.caption)
+                                    .font(.system(size: 10, weight: .medium))
                                     .foregroundColor(.secondary)
                                     .monospacedDigit()
-                                    .frame(minWidth: 40)
 
-                                // Zoom mode selector (like Lightroom)
+                                Rectangle()
+                                    .fill(Color.secondary.opacity(0.3))
+                                    .frame(width: 0.5, height: 14)
+
+                                // Current zoom display - more compact
+                                Text(displayScale)
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                    .monospacedDigit()
+                                    .frame(minWidth: 35)
+
+                                // Compact zoom mode selector
                                 Menu {
                                     ForEach(ZoomMode.allCases, id: \.self) { mode in
                                         Button(mode.rawValue) {
@@ -152,33 +159,38 @@ struct ImageViewerPane: View {
                                         }
                                     }
                                 } label: {
-                                    HStack(spacing: 4) {
+                                    HStack(spacing: 2) {
                                         Text(currentZoomMode.rawValue)
+                                            .font(.system(size: 10, weight: .medium))
                                         Image(systemName: "chevron.down")
-                                            .font(.caption)
+                                            .font(.system(size: 8))
                                     }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 3)
                                 }
-                                .buttonStyle(.bordered)
-                                .controlSize(.small)
+                                .buttonStyle(.borderless)
+                                .controlSize(.mini)
 
-                                // Quick zoom buttons (like FastRawViewer)
-                                Button("Fit") {
-                                    setZoomMode(.fit)
-                                }
-                                .buttonStyle(.bordered)
-                                .controlSize(.small)
+                                // Compact quick zoom buttons
+                                HStack(spacing: 2) {
+                                    Button("Fit") {
+                                        setZoomMode(.fit)
+                                    }
+                                    .font(.system(size: 10, weight: .medium))
+                                    .buttonStyle(.borderless)
+                                    .controlSize(.mini)
 
-                                Button("1:1") {
-                                    setZoomMode(.actual)
+                                    Button("1:1") {
+                                        setZoomMode(.actual)
+                                    }
+                                    .font(.system(size: 10, weight: .medium))
+                                    .buttonStyle(.borderless)
+                                    .controlSize(.mini)
                                 }
-                                .buttonStyle(.bordered)
-                                .controlSize(.small)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color(NSColor.controlBackgroundColor))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(.regularMaterial, in: Rectangle())
 
                             Divider()
 

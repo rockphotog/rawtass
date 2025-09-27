@@ -41,20 +41,21 @@ struct ContentView: View {
 
     var body: some View {
         HSplitView {
-            // Left pane - File Browser
+            // Left pane - File Browser (more compact, focused on file list)
             FileBrowser(
                 supportedTypes: supportedTypes,
                 onFileSelected: { url in
                     selectedImageURL = url
                 }
             )
-            .frame(minWidth: 300, maxWidth: 500)
+            .frame(minWidth: 280, idealWidth: 320, maxWidth: 400)
 
-            // Right pane - Image Viewer
+            // Right pane - Image Viewer (more space for images)
             ImageViewerPane(selectedImageURL: $selectedImageURL)
-                .frame(minWidth: 400)
+                .frame(minWidth: 500)
         }
-        .frame(minWidth: 800, minHeight: 600)
+        .frame(minWidth: 900, minHeight: 650)
+        .background(.regularMaterial)
         .onDrop(of: supportedTypes, isTargeted: nil) { providers in
             handleDrop(providers: providers)
         }
