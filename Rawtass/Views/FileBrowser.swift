@@ -5,10 +5,12 @@ struct FileBrowser: View {
     @State private var currentDirectory: URL = {
         // Start with a directory we know we can access - the sandbox Documents directory
         // This will show user how to navigate to real directories via file picker
-        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+            .first
+        {
             return documentsURL
         }
-        
+
         // Ultimate fallback to sandbox home directory
         return FileManager.default.homeDirectoryForCurrentUser
     }()
@@ -53,21 +55,21 @@ struct FileBrowser: View {
                     Image(systemName: "house")
                 }
                 .help("Select Documents folder")
-                
+
                 Button {
                     showingFilePicker = true
                 } label: {
                     Image(systemName: "photo")
                 }
                 .help("Select Pictures folder")
-                
+
                 Button {
                     showingFilePicker = true
                 } label: {
                     Image(systemName: "desktopcomputer")
                 }
                 .help("Select Desktop folder")
-                
+
                 Button {
                     showingFilePicker = true
                 } label: {
@@ -147,13 +149,13 @@ struct FileBrowser: View {
                 if let url = urls.first {
                     // Start accessing the security-scoped resource
                     let accessing = url.startAccessingSecurityScopedResource()
-                    
+
                     if accessing {
                         print("Successfully gained access to: \(url.path)")
-                        
+
                         // Track this resource for cleanup
                         securityScopedResources.insert(url)
-                        
+
                         // Store a security-scoped bookmark for future access
                         do {
                             let bookmarkData = try url.bookmarkData(options: .withSecurityScope)
@@ -162,7 +164,7 @@ struct FileBrowser: View {
                         } catch {
                             print("Failed to create bookmark: \(error)")
                         }
-                        
+
                         currentDirectory = url
                         refreshContents()
                     } else {
@@ -226,7 +228,7 @@ struct FileBrowser: View {
         currentDirectory = component
         refreshContents()
     }
-    
+
     // Clean up security-scoped resources when the view disappears
     private func cleanup() {
         for url in securityScopedResources {
@@ -255,26 +257,26 @@ struct FileBrowser: View {
         print("Opening file picker for Downloads access")
         showingFilePicker = true
     }
-    
+
     // Get the real user home directory bypassing sandbox redirection
     private func getRealUserHomeDirectory() -> URL {
         return Self.getRealUserHomeDirectoryStatic()
     }
-    
+
     // Static version for use in initialization
     private static func getRealUserHomeDirectoryStatic() -> URL {
         // First try to get the real user name from the environment
         if let realUser = ProcessInfo.processInfo.environment["USER"] {
             let realHomePath = "/Users/\(realUser)"
             let realHomeURL = URL(fileURLWithPath: realHomePath)
-            
+
             // Verify this directory exists and is accessible
             if FileManager.default.fileExists(atPath: realHomePath) {
                 print("Using real home directory: \(realHomePath)")
                 return realHomeURL
             }
         }
-        
+
         // Fallback to sandbox home directory
         let sandboxHome = FileManager.default.homeDirectoryForCurrentUser
         print("Falling back to sandbox home directory: \(sandboxHome.path)")
