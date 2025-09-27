@@ -33,7 +33,6 @@ struct ImageViewerPane: View {
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
     @State private var containerSize: CGSize = .zero
-    @State private var processingOptions = RawProcessingOptions()
     @State private var errorMessage: String?
 
     // Computed properties for professional zoom handling
@@ -86,7 +85,7 @@ struct ImageViewerPane: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .accentColor))
                                 .scaleEffect(1.1)
-                                .frame(width: 32, height: 32) // Fixed size to prevent constraints
+                                .frame(width: 32, height: 32)  // Fixed size to prevent constraints
 
                             Text("Loading image...")
                                 .font(.system(size: 15, weight: .medium))
@@ -98,7 +97,7 @@ struct ImageViewerPane: View {
                                 .lineLimit(1)
                                 .truncationMode(.middle)
                         }
-                        .frame(maxWidth: 300) // Constrained width to prevent layout issues
+                        .frame(maxWidth: 300)  // Constrained width to prevent layout issues
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else if let errorMessage = errorMessage {
                         VStack(spacing: 16) {
@@ -151,12 +150,31 @@ struct ImageViewerPane: View {
                                     .monospacedDigit()
                                     .frame(minWidth: 35)
 
-                                // Compact zoom mode selector
+                                // Comprehensive zoom mode selector
                                 Menu {
-                                    ForEach(ZoomMode.allCases, id: \.self) { mode in
-                                        Button(mode.rawValue) {
-                                            setZoomMode(mode)
-                                        }
+                                    Button("Fit to Window") {
+                                        setZoomMode(.fit)
+                                    }
+                                    Button("Fill Window") {
+                                        setZoomMode(.fill)
+                                    }
+
+                                    Divider()
+
+                                    Button("25%") {
+                                        setZoomMode(.quarter)
+                                    }
+                                    Button("50%") {
+                                        setZoomMode(.half)
+                                    }
+                                    Button("100% (1:1)") {
+                                        setZoomMode(.actual)
+                                    }
+                                    Button("200%") {
+                                        setZoomMode(.double)
+                                    }
+                                    Button("400%") {
+                                        setZoomMode(.quad)
                                     }
                                 } label: {
                                     HStack(spacing: 2) {
@@ -171,7 +189,7 @@ struct ImageViewerPane: View {
                                 .buttonStyle(.borderless)
                                 .controlSize(.mini)
 
-                                // Compact quick zoom buttons
+                                // Quick zoom buttons with distinct functions
                                 HStack(spacing: 2) {
                                     Button("Fit") {
                                         setZoomMode(.fit)
@@ -243,6 +261,14 @@ struct ImageViewerPane: View {
                 lastOffset = .zero
             }
         }
+        .onChange(of: containerSize) {
+            // Recalculate fit scale if currently in fit mode when container size changes
+            if currentZoomMode == .fit && image != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    setZoomMode(.fit)
+                }
+            }
+        }
         .onAppear {
             containerSize = CGSize(width: 800, height: 600)  // Default size
         }
@@ -251,23 +277,31 @@ struct ImageViewerPane: View {
     // MARK: - Professional Zoom Controls
 
     private func setZoomMode(_ mode: ZoomMode) {
+        print("Setting zoom mode to: \(mode.rawValue)")  // Debug output
         currentZoomMode = mode
 
         withAnimation(.easeOut(duration: 0.3)) {
             switch mode {
             case .fit:
-                scale = fitScale
+                let newScale = fitScale
+                print("Fit scale calculated: \(newScale)")  // Debug output
+                scale = newScale
                 centerImage()
             case .fill:
-                scale = fillScale
+                let newScale = fillScale
+                print("Fill scale calculated: \(newScale)")  // Debug output
+                scale = newScale
                 centerImage()
             case .actual, .quarter, .half, .double, .quad:
                 if let targetScale = mode.scale {
+                    print("Setting fixed scale: \(targetScale)")  // Debug output
                     scale = targetScale
                     constrainOffset()
                 }
             }
         }
+
+        print("Final scale: \(scale), mode: \(currentZoomMode.rawValue)")  // Debug output
     }
 
     private func nextZoomMode() {
@@ -321,10 +355,9 @@ struct ImageViewerPane: View {
 
         Task {
             do {
-                let cgImage = await RawImageProcessor.processRawImage(
-                    from: imageURL,
-                    options: processingOptions
-                )
+                // Load image using NSImage first, then convert to CGImage
+                let nsImage = NSImage(contentsOf: imageURL)
+                let cgImage = nsImage?.cgImage(forProposedRect: nil, context: nil, hints: nil)
 
                 await MainActor.run {
                     if let cgImage = cgImage {
@@ -410,8 +443,8 @@ struct ProfessionalImageView: View {
                 .onAppear {
                     containerSize = geometry.size
                 }
-                .onChange(of: geometry.size) {
-                    containerSize = geometry.size
+                .onChange(of: geometry.size) { oldValue, newValue in
+                    containerSize = newValue
                 }
         }
     }

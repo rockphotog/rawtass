@@ -179,7 +179,7 @@ struct FileBrowser: View {
                     // Improved security-scoped resource handling
                     DispatchQueue.global(qos: .userInitiated).async {
                         let accessing = url.startAccessingSecurityScopedResource()
-                        
+
                         DispatchQueue.main.async {
                             if accessing {
                                 // Track this resource for cleanup
@@ -244,7 +244,7 @@ struct FileBrowser: View {
                     includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey],
                     options: [.skipsHiddenFiles]
                 )
-                
+
                 DispatchQueue.main.async {
                     self.contents = urls
                 }
